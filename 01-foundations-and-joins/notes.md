@@ -42,6 +42,24 @@ SQL clauses must appear in this order — this isn't stylistic, the query fails 
 SELECT ... FROM ... JOIN ... ON ... WHERE ... GROUP BY ... ORDER BY ... LIMIT ...
 ```
 
+Self-joins
+
+A table can be joined to itself when a column refers back to another row in the same table (e.g. Employee.managerId refers to another Employee.id). Use two different aliases for the same table to treat it as two logical roles:
+
+sqlSELECT e1.name
+FROM Employee e1
+JOIN Employee e2 ON e1.managerId = e2.id
+WHERE e1.salary > e2.salary;
+
+e1 and e2 both point at Employee, but represent different roles ("the employee" vs. "their manager").
+
+NULL and joins
+
+NULL never equals anything — not even another NULL. NULL = NULL evaluates to unknown, not true.
+
+Consequence: in an INNER JOIN, if the join column is NULL on one side (e.g. an employee with no manager), that row can never match anything on the other side — it simply doesn't appear in the result. It does not show up with NULLs; it's silently dropped.
+This only matters for INNER JOIN. With LEFT JOIN, the row from the left table is kept regardless, and unmatched columns from the right table show as NULL — that's the "gap-finding" pattern.
+
 ## Common mistakes I made (and why they happened)
 
 1. **Trailing comma before FROM** — `SELECT a, b, FROM table` fails because the comma signals "more columns coming."
